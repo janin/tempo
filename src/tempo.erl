@@ -44,7 +44,8 @@
 -compile([export_all]).
 -endif.
 
--define(STUB, not_loaded(?LINE)).
+-define(STUB, erlang:nif_error({not_loaded, [{module, ?MODULE}, {line, ?LINE}]})).
+
 -define(MEGA, 1000000).
 -define(MICRO, 0.000001).
 -define(EPOCH_ZERO,
@@ -55,7 +56,7 @@
          format/2, format/3,
          format_unix/2, format_now/2, format_datetime/2]).
 
--type unix_timestamp() :: float().
+-type unix_timestamp() :: integer() | float().
 -type format()         :: binary()
                         | iso8601
                         | rfc1123
@@ -203,7 +204,7 @@ strptime(_Format, _DT) -> ?STUB.
 %% @private
 %% @doc This function will be replaced with NIF's strftime.
 %% @end
--spec strftime(binary(), integer()) -> {ok, binary()}
+-spec strftime(binary(), float()) -> {ok, binary()}
                                      | {error, invalid_time}.
 strftime(_Format, _DT) -> ?STUB.
 
@@ -221,9 +222,3 @@ nif_init() ->
                       Path
               end,
     erlang:load_nif(filename:join(PrivDir, atom_to_list(?MODULE)), 0).
-
-%% @private
-%% @doc Helper for exiting gracefully when NIF can't be loaded.
-%% @end
--spec not_loaded(pos_integer()) -> ok.
-not_loaded(Line) -> exit({not_loaded, [{module, ?MODULE}, {line, Line}]}).
